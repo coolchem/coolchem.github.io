@@ -1,0 +1,23 @@
+$iconSpritePath: "../images/glyphicons-halflings.png";
+$iconWhiteSpritePath: "../images/glyphicons-halflings-white.png";
+
+body
+{
+  margin: 0;
+}
+.application{
+   width: 100%;
+  height: 100%;
+}
+
+.header{
+  width: 100%;
+  height: 70px;
+  background-color: #047CAB;
+}
+
+.header2{
+  width: 100%;
+  height: 70px;
+  background-color: #d35d50;
+}
