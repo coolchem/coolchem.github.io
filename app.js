@@ -22,7 +22,20 @@ $r.skins(
 $r.Application('RamaJSWebsite', function()
 {
 
-    this.skinClass = "$r.AppSkin";
+    //this.skinClass = "$r.AppSkin";
+    this.init = function(){
+        this.super.init();
+        this.skinClass = "$r.AppSkin";
+        window.addEventListener("resize", $r.bindFunction(handleResize, this))
+    }
+
+    this.initialize = function(){
+        this.super.initialize();
+        var event = new $r.Event("resize");
+        window.dispatchEvent(event.event);
+
+    }
+
 
     this.hamBurgerIcon = null;
     this.mainNavigator = null;
@@ -85,6 +98,17 @@ $r.Application('RamaJSWebsite', function()
             this.hamBurgerIcon.addEventListener("click", $r.bindFunction(handleHamburgerIconClicked, this))
         }
 
+    }
+
+    function handleResize(event){
+      if(this[0].offsetWidth < 1200)
+      {
+          this.skinClass = "$r.AppSkinSmallScreen";
+      }
+      else
+      {
+          this.skinClass = "$r.AppSkin";
+      }
     }
 
     function handleTestButtonClick(clickEvent) {
