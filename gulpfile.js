@@ -40,7 +40,7 @@ gulp.task('json', function() {
 
 gulp.task('html', function() {
     // Minify and copy all JavaScript (except vendor scripts)
-    return gulp.src(paths.json)
+    return gulp.src(paths.html)
             .pipe(gulp.dest(githubIODest));
 });
 
