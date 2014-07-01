@@ -1,31 +1,62 @@
 
-var main = $r.package("main");
+$r.package("main");
 
-main.skins(
+$r.package("main").skins(
         {skinClass:'AppSkin', skinURL:"skins/appSkin.html"},
         {skinClass:'TodoListItemRendererSkin', skinURL:"skins/todoListItemRendererSkin.html"}
 );
 
 $r.Application('todoApp', function()
 {
-    this.init = function(){
+    var main = $r.package("main");
+    var noOfActiveItems = 0,
+            noOfCompletedItems = 0,todoModel,todoController;
+
+    this.set("noOfActiveItems", function(value){
+
+        noOfActiveItems = value;
+        setTodoCountContent();
+    })
+
+    var setAppState = this.bind(setAppStateFn);
+    var setTodoCountContent = this.bind(setTodoCountContentFn);
+    var handleCompletedItemsChanged = this.bind(handleCompletedItemsChangedFn);
+    this.init = function()
+    {
+        //Calling the init on the super class is a must, one of the limitations of the framework.
         this.super.init();
+
+        //setting the ski class  for the App.Notice the use of qualified classname that is "packageName.className"
         this.skinClass = "main.AppSkin";
-        this.todosModel =  new main.TodoModel();
-        this.todoController =  new main.TodoController(this, this.todosModel);
-        if(this.todosModel.todoList.length > 0)
-        {
-            this.currentState = "hastodoitems";
-        }
+
+        //now initializing the model and controller
+        todoModel =  new main.TodoModel();
+        todoModel.bindProperty("noOfActiveItems").with("noOfActiveItems",this);
+        //todoModel.observe("noOfActiveItems", handleActiveItemsChanged)
+        todoModel.observe("noOfCompletedItems", handleCompletedItemsChanged);
+
+        todoController =  new main.TodoController(this, todoModel);
+        //adding event listener to the model so the view can react to the changes in the model
+
+
+        setAppState();
+
     }
 
-    this.newTodoInput = null
+    this.newTodoInput = null;
+    this.filterAll = null;
+    this.filterActive = null;
+    this.filterActive = null;
+    this.clearCompletedBtn = null;
+    this.todoCount = null;
+    this.todoCountValue = null;
 
     this.skinParts = [{id:'todo-form', required:true},
         {id:'new-todo', required:true},
         {id:'toggle-all', required:true},
         {id:'todo-list', required:true},
-        {id:'todo-count', required:true},
+        {id:'todoCount', required:true},
+        {id:'todoCountValue', required:true},
         {id:'filterAll', required:true},
         {id:'filterActive', required:true},
         {id:'filterCompleted', required:true},
@@ -36,7 +67,7 @@ $r.Application('todoApp', function()
 
         if(partName === "todo-form")
         {
-            instance.addEventListener("submit", $r.bindFunction(handleNewTodoItemAdded, this))
+            instance.addEventListener("submit", todoController.addTodoItem)
         }
 
         if(partName === "new-todo")
@@ -46,28 +77,86 @@ $r.Application('todoApp', function()
 
         if(partName === "todo-list")
         {
-            instance.dataProvider = this.todosModel.todoList;
+            instance.dataProvider = todoModel.todoList;
+        }
+
+        if(instance === this.filterAll || instance === this.filterActive || instance === this.filterCompleted)
+        {
+            instance.addEventListener("click", todoController.filterTodoItems);
+        }
+
+        if(instance === this.todoCount)
+        {
+            setTodoCountContent()
+        }
+
+        if(instance === this.todoCountValue)
+        {
+            setTodoCountContent();
+        }
+
+        if(partName === "clear-completed")
+        {
+            this.clearCompletedBtn = instance;
+            this.clearCompletedBtn.addEventListener("click", todoController.clearCompletedItems);
+            handleCompletedItemsChanged();
         }
     }
 
-    function handleNewTodoItemAdded(event){
+    function setAppStateFn(){
 
-        event.stopImmediatePropagation();
-        event.preventDefault();
 
-        this.todosModel.todoList.addItem(createTodoItem(this.newTodoInput[0].value))
-        if(this.currentState === "")
+        if(todoModel.todoList.length > 0)
         {
             this.currentState = "hastodoitems";
         }
     }
 
-    function createTodoItem(description){
-       return {
-           description:description,
-           completed:false
-       }
+
+    function handleActiveItemsChanged(){
+
+        noOfActiveItems = todoModel.noOfActiveItems;
+        setTodoCountContent();
     }
+
+    function handleCompletedItemsChangedFn(){
+
+        noOfCompletedItems = todoModel.noOfCompletedItems;
+
+        if(this.clearCompletedBtn)
+        {
+            if(noOfCompletedItems.length > 0)
+            {
+                this.clearCompletedBtn.display = "";
+                this.clearCompletedBtn.textContent = "Clear completed(" + noOfCompletedItems + ")";
+            }
+            else
+            {
+                this.clearCompletedBtn.display = "none";
+            }
+        }
+    }
+
+    function setTodoCountContentFn(){
+
+        if(this.todoCount && this.todoCountValue)
+        {
+            var remainingCount = ""
+            if(noOfActiveItems > 1)
+            {
+                remainingCount = " items left";
+            }
+            else
+            {
+                remainingCount = " item left";
+            }
+
+            this.todoCountValue.textContent = todoModel.noOfActiveItems;
+            this.todoCount.textContent = remainingCount;
+        }
+    }
+
+
 
 });
 

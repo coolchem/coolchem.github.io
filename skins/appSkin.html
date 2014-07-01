@@ -19,21 +19,22 @@
         </section>
 
         <footer id="footer" display="none" display.hastodoitems="">
-					<span id="todo-count"><strong>{{remainingCount}}</strong>
-						<ng-pluralize count="remainingCount" when="{ one: 'item left', other: 'items left' }"></ng-pluralize>
-					</span>
+			<span id="todo-count">
+                <strong id="todoCountValue"></strong>
+                <span id="todoCount"></span>
+			</span>
             <ul id="filters">
                 <li>
-                    <a id="filterAll">All</a>
+                    <a id="filterAll" href="#/">All</a>
                 </li>
                 <li>
-                    <a id="filterActive">Active</a>
+                    <a id="filterActive" href="#/active">Active</a>
                 </li>
                 <li>
-                    <a id="filterCompleted">Completed</a>
+                    <a id="filterCompleted" href="#/completed">Completed</a>
                 </li>
             </ul>
-            <button id="clear-completed">Clear completed ({{completedCount}})</button>
+            <button id="clear-completed"></button>
         </footer>
     </section>
     <footer id="info">

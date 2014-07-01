@@ -1,8 +1,10 @@
 $r.package("main").Class("TodoListItemRenderer").extends("Component")(function(){
 
     var _data;
-
     this.descriptionLabel = null;
+    this.completedCheckbox = null;
+    this.editingInput = null;
+
     this.skinParts = [{id:"descriptionLabel",required:true},
         {id:"completedCheckbox",required:true},
         {id:"removeButton",required:true},
@@ -18,7 +20,7 @@ $r.package("main").Class("TodoListItemRenderer").extends("Component")(function()
     })
 
     this.set("data", function(value){
-        this.super.data = value;
+
         _data = value;
         if(_data)
         {
@@ -30,6 +32,8 @@ $r.package("main").Class("TodoListItemRenderer").extends("Component")(function()
          if(this.descriptionLabel)
             this.descriptionLabel.textContent = _data.description;
 
+            setCurrentState(this);
+
         }
     })
 
@@ -40,6 +44,29 @@ $r.package("main").Class("TodoListItemRenderer").extends("Component")(function()
             if(_data)
                 this.descriptionLabel.textContent = _data.description;
         }
+    }
+
+    function setCurrentState(_this,editing){
+      if(_data)
+      {
+          if(!editing)
+          {
+              if(_data.completed)
+              {
+                  this.currentState = "completed"
+              }
+              else
+              {
+                  this.currentState = "";
+              }
+          }
+          else
+          {
+              this.currentState = "editing"
+          }
+
+      }
+
     }
 
 
